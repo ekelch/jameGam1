@@ -2,12 +2,13 @@ extends CharacterBody2D
 
 const SPEED = 250
 const JUMP_VEL = -370
-var last_right:bool = true
-const CHARGE_MIN = 100
-const CHARGE_MAX = 500
+var direction_facing = Vector2.RIGHT
+const CHARGE_MIN = 50
+const CHARGE_MAX = 800
+const CHARGE_STEP = 750
 var charge = CHARGE_MIN
 
-signal mainActionPressed(pos: Vector2, charge: float)
+signal mainActionPressed(pos: Vector2, dir: Vector2, charge: float)
 
 func _physics_process(delta: float) -> void:
 	# gravity and jumping
@@ -20,12 +21,10 @@ func _physics_process(delta: float) -> void:
 	var x_dir = Input.get_axis("left", "right")
 	if x_dir > 0:
 		$AnimatedSprite2D.animation = "move_right"
-		last_right = true
+		direction_facing = Vector2.RIGHT
 	elif x_dir < 0:
 		$AnimatedSprite2D.animation = "move_left"
-		last_right = false
-	else:
-		$AnimatedSprite2D.animation = "idle_right" if last_right else "idle_left"
+		direction_facing = Vector2.LEFT
 	
 	# update pos
 	position.x += x_dir * delta * SPEED
@@ -33,7 +32,8 @@ func _physics_process(delta: float) -> void:
 	
 	# other inputs
 	if Input.is_action_pressed("main_action"):
-		charge = move_toward(charge, CHARGE_MAX, delta * 500)
+		charge = move_toward(charge, CHARGE_MAX, delta * CHARGE_STEP)
 	elif Input.is_action_just_released("main_action"):
-		mainActionPressed.emit(global_position, charge)
+		print("throwing with charge ", charge)
+		mainActionPressed.emit(global_position, direction_facing, charge)
 		charge = CHARGE_MIN
