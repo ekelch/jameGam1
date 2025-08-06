@@ -46,6 +46,10 @@ main_action={
 ]
 }
 
+[layer_names]
+
+2d_render/layer_1="player"
+
 [physics]
 
 2d/default_gravity=1300.0
